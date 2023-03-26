@@ -25,6 +25,7 @@ const decryptions = async (req, res) => {
     response.success(res, _.omit(decryption(req), ["iat", "exp"]));
   }
 };
+// hihi
 
 export default {
   login,
