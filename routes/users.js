@@ -16,6 +16,8 @@ router.post(
   userController.login
 );
 
+router.post("/register", userController.register);
+
 router.post("/decryption", userController.decryptions);
 
 export default router;

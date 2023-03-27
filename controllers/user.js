@@ -1,9 +1,8 @@
-import { createToken, decryption, generateSecretKey } from "../common/utils.js";
-import { body, validationResult } from "express-validator";
-import response from "../common/response.js";
+import { validationResult } from "express-validator";
 import _ from "lodash";
+import response from "../common/response.js";
+import { createToken, decryption, generateSecretKey } from "../common/utils.js";
 import { userRepositories } from "../repositories/index.js";
-import { EventEmitter } from "node:events";
 const login = async (req, res) => {
   // Tạo token
   const payload = req.body;
@@ -18,6 +17,23 @@ const login = async (req, res) => {
   response.success(res, { ...req.body, token });
 };
 
+const register = async (req, res) => {
+  // const errors = validationResult(req);
+  // if (!errors.isEmpty()) {
+  //   return response.badRequest(res, errors.array());
+  // }
+  // call repositories
+  const user = await userRepositories.register(req.body);
+  console.log("user 12312321", user);
+  // try {
+  //   const user = await userRepositories.register(req.body);
+  //   console.log("user 12312321", user);
+  //   response.success(res, user);
+  // } catch (error) {
+  //   return response.badRequest(res);
+  // }
+};
+
 const decryptions = async (req, res) => {
   if (!decryption(req)) {
     response.forbidden(res, "inValid value");
@@ -25,9 +41,9 @@ const decryptions = async (req, res) => {
     response.success(res, _.omit(decryption(req), ["iat", "exp"]));
   }
 };
-// hihi
 
 export default {
   login,
+  register,
   decryptions,
 };
