@@ -18,20 +18,16 @@ const login = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  // const errors = validationResult(req);
-  // if (!errors.isEmpty()) {
-  //   return response.badRequest(res, errors.array());
-  // }
-  // call repositories
-  const user = await userRepositories.register(req.body);
-  console.log("user 12312321", user);
-  // try {
-  //   const user = await userRepositories.register(req.body);
-  //   console.log("user 12312321", user);
-  //   response.success(res, user);
-  // } catch (error) {
-  //   return response.badRequest(res);
-  // }
+  try {
+    const user = await userRepositories.register(req.body);
+    if (user?.exister) {
+      response.forbidden(res, user?.error);
+    } else {
+      response.success(res, user);
+    }
+  } catch (error) {
+    return response.badRequest(res);
+  }
 };
 
 const decryptions = async (req, res) => {

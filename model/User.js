@@ -1,12 +1,12 @@
 import mongoose, { Schema } from "mongoose";
-
 export default mongoose.model(
   "User",
   new Schema({
     id: {
-      type: String, // kiểu dữ liệu của trường id là String
-      required: true, // bắt buộc phải có trường id
-      unique: true, // giá trị của trường id là duy nhất
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+      default: mongoose.Types.ObjectId,
     },
     name: {
       type: String, // kiểu dữ liệu của trường name là String

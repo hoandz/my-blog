@@ -6,7 +6,6 @@ export default {
       data: data,
     });
   },
-
   created: (res, data = null) => {
     res.status(201).json({
       success: true,
