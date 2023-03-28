@@ -23,6 +23,7 @@ const register = async (req, res) => {
     if (user?.exister) {
       response.forbidden(res, user?.error);
     } else {
+      delete user.password;
       response.success(res, user);
     }
   } catch (error) {
