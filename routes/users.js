@@ -18,6 +18,8 @@ router.post(
 
 router.post("/register", userController.register);
 
+router.post("/change-password", userController.changePassword);
+
 router.post("/decryption", userController.decryptions);
 
 export default router;

@@ -1,8 +1,9 @@
 // export default là một object, chứa các phương thức trả về response
 export default {
-  success: (res, data = null) => {
+  success: (res, data = null, message) => {
     res.status(200).json({
       success: true,
+      message: message || "Successfully",
       data: data,
     });
   },

@@ -1,20 +1,32 @@
 import { validationResult } from "express-validator";
 import _ from "lodash";
 import response from "../common/response.js";
-import { createToken, decryption, generateSecretKey } from "../common/utils.js";
+import { decryption } from "../common/utils.js";
 import { userRepositories } from "../repositories/index.js";
+
 const login = async (req, res) => {
-  // Tạo token
-  const payload = req.body;
-  const options = { expiresIn: "1h" };
-  const token = createToken(payload, generateSecretKey(), options);
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return response.badRequest(res, errors.array());
+  try {
+    const { body } = req;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return response.badRequest(res, errors.array());
+    }
+    const data = await userRepositories.login(body);
+
+    if (data ?? false) {
+      response.success(res, data, "Login successfully!");
+    } else {
+      response.forbidden(res, "Incorrect password or email!");
+    }
+  } catch (error) {
+    if (error.code === "USER_NOT_FOUND") {
+      return response.forbidden(res, "User not found!");
+    }
+    if (error.code === "INCORRECT_PASSWORD") {
+      return response.forbidden(res, "Incorrect password!");
+    }
+    return response.serverError(res, error.message);
   }
-  // call repositories
-  await userRepositories.login(req.body);
-  response.success(res, { ...req.body, token });
 };
 
 const register = async (req, res) => {
@@ -23,17 +35,40 @@ const register = async (req, res) => {
     if (user?.exister) {
       response.forbidden(res, user?.error);
     } else {
-      delete user.password;
-      response.success(res, user);
+      const { email, name } = user;
+      response.success(res, { email, name });
     }
   } catch (error) {
     return response.badRequest(res);
   }
 };
 
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!decryption(req)) {
+    response.forbidden(res, "Invalid value");
+    return;
+  }
+  if (currentPassword === newPassword) {
+    response.forbidden(
+      res,
+      "The new password cannot be the same as the old password!"
+    );
+    return;
+  }
+  const user = await userRepositories.changePassword(req.body);
+  if (user) {
+    response.success(res, user, "Update successfully!");
+    return;
+  } else {
+    response.forbidden(res, "Incorrect password or email!");
+    return;
+  }
+};
+
 const decryptions = async (req, res) => {
   if (!decryption(req)) {
-    response.forbidden(res, "inValid value");
+    response.forbidden(res, "Invalid value");
   } else {
     response.success(res, _.omit(decryption(req), ["iat", "exp"]));
   }
@@ -43,4 +78,5 @@ export default {
   login,
   register,
   decryptions,
+  changePassword,
 };
