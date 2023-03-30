@@ -1,6 +1,6 @@
 import { User } from "../model/index.js";
 import bcrypt from "bcrypt";
-import { createToken } from "../common/utils.js";
+import { createToken, sendMail } from "../common/utils.js";
 const login = async (data) => {
   const { email, password } = data;
   const user = await User.findOne({ email }).exec();
@@ -43,6 +43,8 @@ const changePassword = async (data) => {
       const hashPass = await bcrypt.hash(newPassword, 10);
       user.password = hashPass ?? user.password;
       await user.save();
+
+      await sendMail(user._doc.password);
       delete user._doc.password;
       return user;
     }
